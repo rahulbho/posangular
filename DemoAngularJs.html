@@ -1,0 +1,60 @@
+<html>
+	<head>
+	  <title>Angular Js tutorials</title>
+	  <script type="text/javascript" src="angular.min.js"></script>
+	</head>
+	<body data-ng-app="demoApp">
+	  <h1>Data Binding example</h1>
+	  <hr>
+	  Write some text in textbox:
+	  <input type="text" name="sometext" data-ng-model="sometext" />
+	  <h3>Hello {{sometext}}</h3>
+		<h1>Filter & Iteration</h1>
+		<hr>
+		<input type="text" name="keyword" data-ng-model="keyword" />
+		<div class="container" data-ng-init="users=[{name:'Rahul', city:'Sarangpur'}, {name:'Swapnil', city:'Indore'},{name:'Suraj', city:'Bhopal'},{name:'Rohit',city:'Ujjain'}]">
+    	<ul>
+				<li data-ng-repeat="user in users|filter:keyword">{{user.name}} - {{user.city}}</li>			
+			</ul>
+    </div>
+<div class="container" data-ng-controller="simpleController">
+		<h1>Controller Demo</h1>
+		<hr>
+		<input type="text" name="keyword" data-ng-model="keyword2" />
+<ul>
+				<li data-ng-repeat="user in users|filter:keyword2">{{user.name}} - {{user.city}}</li>			
+			</ul>
+</div>
+   <input type="text" placeholder="&232B;" name="sample"/> 	
+<div data-ng-controller="MainCtrl">
+	Response from Ofbiz Server {{responseFromServer}}
+</div>  
+		<script>
+var demoApp = angular.module("demoApp", []);
+
+demoApp.config(function($httpProvider) {
+  $httpProvider.defaults.useXDomain = true;
+  delete $httpProvider.defaults.headers.common['X-Requested-With'];
+});
+demoApp.controller("simpleController",function ($scope) {
+				$scope.	users=[
+                       {name:'Rahul', city:'Sarangpur'},
+											 {name:'Swapnil', city:'Indore'},
+											 {name:'Suraj', city:'Bhopal'},
+											 {name:'Rohit',city:'Ujjain'}
+											];		
+			})
+
+
+.controller('MainCtrl', function($scope, $http) {
+  $http.post('http://localhost:8080/control/addItem;jsessionid=DC6C929E49E8FPQRSCD38D685CA5B01F.jvm1?productId=GZ-1000').then(function(resp) {
+    $scope.responseFromServer = resp;
+console.log('Success', resp);
+  }, function(err) {
+    console.error('ERR', err);
+    // err.status will contain the status code
+  })
+});
+		</script>
+	</body>
+</html>

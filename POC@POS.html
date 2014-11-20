@@ -1,0 +1,111 @@
+<html>
+	<head>
+	  <title>POC@POS@Angular@Ionic</title>
+	  <script type="text/javascript" src="angular.min.js"></script>
+	</head>
+	<body data-ng-app="demoApp">
+	  <div ng-app="app">
+      <div ng-controller="MainCtrl">
+        <div ng-if="orderId == null">
+					<button ng-click="initialiseOrder()">Start new Order</button>
+			  </div>
+				<div ng-if="orderId != null">
+					<div>Current Order: {{orderId}}</div>
+					<div>Enter Product ID:
+						<input type="text" ng-model="productId" />
+						<button ng-click="addItem(productId)">Add</button>
+						<div>
+							<h4>Your Cart</h4>
+						  <ul>
+								<li>
+									<strong>PRODUCT ID --- QUANTITY -- UNIT PRICE</strong>
+								</li>
+								<li data-ng-repeat="item in orderDetails.itemList">
+									{{item.productId}} 
+									<input type="text" ng-model="item.quantity" />
+									<input type="text" ng-model="item.unitPrice" />
+									<button ng-click="editOrderItem(item)">update</button>
+								</li>
+							</ul>
+							<div>
+								<strong>Sub Total </strong>{{orderDetails.subTotal}}
+								<strong>Tax </strong>{{orderDetails.taxTotal}}
+								<strong>Total </strong>{{orderDetails.grandTotal}}
+							</div>
+						</div>
+					</div>
+			  </div>
+      </div>
+    </div>
+
+	 <script>
+		 var app = angular.module("app", []);
+		 app.config(function($httpProvider) {
+		 	 $httpProvider.defaults.useXDomain = true;
+		   delete $httpProvider.defaults.headers.common['X-Requested-With'];
+		 });
+		 app.controller('MainCtrl', function($scope, $http) {
+			 $scope.addItem = function(productId) {
+				 var url = 'http://localhost:8080/control/addItem?productId='+productId+'&orderId='+$scope.orderId;
+         $http.post(url).then(function(resp) {
+    		   $scope.responseFromServer = resp;
+					 
+           console.log('Success', "Item added to ORDER ID : "+$scope.orderId);
+         }, function(err) {
+         console.error('ERR', err);
+         // err.status will contain the status code
+					 console.log('Error', "Something is FISHY there!!");
+         }).then(
+				 function() {
+			   var url = 'http://localhost:8080/control/getOrderDetails?orderId='+$scope.orderId;
+				 $http.post(url).then(function(resp) {
+					 $scope.orderDetails=resp.data.orderDetails;
+           console.log('Success', 'fetched details for ORDER ID: '+$scope.orderId);
+         }, function(err) {
+         console.error('ERR', err);
+         // err.status will contain the status code
+					 console.log('Error', "Something is FISHY there!!");
+         })
+			 }
+				 )
+    	 }
+			 $scope.initialiseOrder = function() {
+				 var url = 'http://localhost:8080/control/initialiseOrder';
+         $http.post(url).then(function(resp) {
+					 $scope.orderId=resp.data.orderId;
+           console.log('Success', 'Order Created with ORDER ID: '+$scope.orderId);
+         }, function(err) {
+         console.error('ERR', err);
+         // err.status will contain the status code
+					 console.log('Error', "Something is FISHY there!!");
+         })
+    	 }
+			 $scope.editOrderItem = function(item) {
+				 var urlParamString = "orderId="+$scope.orderId+"&orderItemSeqId="+item.orderItemSeqId+"&quantity="+item.quantity+"&unitPrice="+item.unitPrice;
+				 var url = 'http://localhost:8080/control/editOrderItem?'+urlParamString;
+         $http.post(url).then(function(resp) {
+					 
+           console.log('Success', 'Updated Item');
+         }, function(err) {
+         console.error('ERR', err);
+         // err.status will contain the status code
+					 console.log('Error', "Something is FISHY there!!");
+         }).then(
+				 function() {
+			   var url = 'http://localhost:8080/control/getOrderDetails?orderId='+$scope.orderId;
+				 $http.post(url).then(function(resp) {
+					 $scope.orderDetails=resp.data.orderDetails;
+           console.log('Success', 'fetched details for ORDER ID: '+$scope.orderId);
+         }, function(err) {
+         console.error('ERR', err);
+         // err.status will contain the status code
+					 console.log('Error', "Something is FISHY there!!");
+         })
+    	 }
+				 )}
+			
+			 
+  	 });
+		</script>
+	</body>
+</html>
