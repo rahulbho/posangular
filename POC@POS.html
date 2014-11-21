@@ -21,7 +21,7 @@
 									<strong>PRODUCT ID --- QUANTITY -- UNIT PRICE</strong>
 								</li>
 								<li data-ng-repeat="item in orderDetails.itemList">
-									{{item.productId}} 
+									{{item.productId}} ({{item.itemDescription}})
 									<input type="text" ng-model="item.quantity" />
 									<input type="text" ng-model="item.unitPrice" />
 									<button ng-click="editOrderItem(item)">update</button>
@@ -46,29 +46,18 @@
 		   delete $httpProvider.defaults.headers.common['X-Requested-With'];
 		 });
 		 app.controller('MainCtrl', function($scope, $http) {
+
 		   $scope.addItem = function(productId) {
-			 var url = 'http://localhost:8080/control/addItem?productId='+productId+'&orderId='+$scope.orderId;
-       $http.post(url).then(function(resp) {
-    	   $scope.responseFromServer = resp;
-         console.log('Success', "Item added to ORDER ID : "+$scope.orderId);
-       }, function(err) {
-            console.error('ERR', err);
-					  console.log('Error', "Something is FISHY there!!");
-          }
-			 ).then(
-				   function() {
-						 var url = 'http://localhost:8080/control/getOrderDetails?orderId='+$scope.orderId;
-							 $http.post(url).then(function(resp) {
-								 $scope.orderDetails=resp.data.orderDetails;
-								 console.log('Success', 'fetched details for ORDER ID: '+$scope.orderId);
-							 }, function(err) {
-										console.error('ERR', err);
-										console.log('Error', "Something is FISHY there!!");
-									}
-							)
-			     }
-				 )
-    	 } //end of add item
+				 var urlParams = 'productId='+productId+'&orderId='+$scope.orderId;
+				 var url = 'http://localhost:8080/control/addItem?'+urlParams;
+		     $http.post(url).then(function() {$scope.viewOrderDetails($scope.orderId);},
+		                          function(err) {
+		                            console.error('ERR', err);
+												        console.log('Error', "Something is FISHY there!!");
+											        }
+									        )
+			 } //end of add item
+
 			 $scope.initialiseOrder = function() {
 				 var url = 'http://localhost:8080/control/initialiseOrder';
          $http.post(url).then(function(resp) {
@@ -76,58 +65,40 @@
            console.log('Success', 'Order Created with ORDER ID: '+$scope.orderId);
          }, function(err) {
          console.error('ERR', err);
-         // err.status will contain the status code
 					 console.log('Error', "Something is FISHY there!!");
          })
-    	 }//end of initialiseOrder
+    	 } //end of initialiseOrder
+
 			 $scope.editOrderItem = function(item) {
 				 var urlParamString = "orderId="+$scope.orderId+"&orderItemSeqId="+item.orderItemSeqId+"&quantity="+item.quantity+"&unitPrice="+item.unitPrice;
 				 var url = 'http://localhost:8080/control/editOrderItem?'+urlParamString;
-         $http.post(url).then(function(resp) {
-					 
-           console.log('Success', 'Updated Item');
-         }, function(err) {
-         console.error('ERR', err);
-         // err.status will contain the status code
-					 console.log('Error', "Something is FISHY there!!");
-         }).then(
-				 function() {
-			   var url = 'http://localhost:8080/control/getOrderDetails?orderId='+$scope.orderId;
-				 $http.post(url).then(function(resp) {
-					 $scope.orderDetails=resp.data.orderDetails;
-           console.log('Success', 'fetched details for ORDER ID: '+$scope.orderId);
-         }, function(err) {
-         console.error('ERR', err);
-         // err.status will contain the status code
-					 console.log('Error', "Something is FISHY there!!");
-         })
-    	 }
-				 )} // end of editOrderItem
+         $http.post(url).then(function() {$scope.viewOrderDetails($scope.orderId);},
+		                          function(err) {
+		                            console.error('ERR', err);
+												        console.log('Error', "Something is FISHY there!!");
+											        }
+									        )
+			 } // end of editOrderItem
 			 
 			 $scope.deleteOrderItem = function(item) {
 				 var urlParamString = "orderId="+$scope.orderId+"&orderItemSeqId="+item.orderItemSeqId;
 				 var url = 'http://localhost:8080/control/deleteOrderItem?'+urlParamString;
-         $http.post(url).then(function(resp) {
-					 
-           console.log('Success', 'Deleted Order Item');
-         }, function(err) {
-         console.error('ERR', err);
-         // err.status will contain the status code
-					 console.log('Error', "Something is FISHY there!!");
-         }).then(
-				 function() {
-			   var url = 'http://localhost:8080/control/getOrderDetails?orderId='+$scope.orderId;
-				 $http.post(url).then(function(resp) {
-					 $scope.orderDetails=resp.data.orderDetails;
-           console.log('Success', 'fetched details for ORDER ID: '+$scope.orderId);
-         }, function(err) {
-         console.error('ERR', err);
-         // err.status will contain the status code
-					 console.log('Error', "Something is FISHY there!!");
-         })
-    	 }
-				 )} 
+         $http.post(url).then(function() {$scope.viewOrderDetails($scope.orderId);},
+		                          function(err) {
+		                            console.error('ERR', err);
+												        console.log('Error', "Something is FISHY there!!");
+											        }
+									        )
+			 } //end of deleteOrderItem
 			
+			 $scope.viewOrderDetails = function(orderId) {
+			 var urlParams = 'orderId='+orderId;
+			 var url = 'http://localhost:8080/control/getOrderDetails?'+urlParams;
+       $http.post(url).then(function(resp) {
+													   $scope.orderDetails= resp.data.orderDetails;
+														 console.log('Success', 'fetched details for ORDER ID:');	
+							              })
+			 } //end of view orderDetails
 			 
   	 });
 		</script>
